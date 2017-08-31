@@ -16,10 +16,11 @@ clkernel::clkernel(clcontext *context, parameters parn, std::string filePath, st
   bool print_log = false;
 
   const char* cStrSource[1] = { s_sourceCode.data() };
+  const char* options = "-I Random123/include";
 
   program = clCreateProgramWithSource(context->context, 1, cStrSource, NULL, &ret);
   logger->log(1, ret, "%s\tCreating kernel program\n", s_name.c_str());
-  ret = clBuildProgram(program, 1, &(context->device_id), NULL, NULL, NULL);
+  ret = clBuildProgram(program, 1, &(context->device_id), options, NULL, NULL);
   if (ret != CL_SUCCESS) print_log = true;
   // logger->log(1, ret, "%s\tBuilding kernel program\n", s_name.c_str());
   //   if (print_log) logger->log(1, "source code:\n\n%s\n", s_sourceCode.c_str());
