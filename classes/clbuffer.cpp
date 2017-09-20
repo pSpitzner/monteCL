@@ -1,6 +1,6 @@
 #include "clbuffer.h"
 
-clbuffer::clbuffer(clcontext *context_, std::string name_, int sx_, int sy_, int sz_) {
+clbuffer::clbuffer(clcontext *context_, std::string name_, int sx_, int sy_, int sz_, int datatype) {
   // texture data
   s_name = name_;
   context = context_;
@@ -9,12 +9,17 @@ clbuffer::clbuffer(clcontext *context_, std::string name_, int sx_, int sy_, int
   sy = sy_;
   sz = sz_;
 
-  datasize = sx * sy * sz * 4 * sizeof(float);
-  data = new float[sx * sy * sz * 4];
-
   cl_image_format image_format;
-  image_format.image_channel_data_type = CL_FLOAT;
-  // image_format.image_channel_data_type = CL_SIGNED_INT32;
+
+  if (datatype == 0) {
+    data = new float[sx * sy * sz * 4];
+    datasize = sx * sy * sz * 4 * sizeof(float);
+    image_format.image_channel_data_type = CL_FLOAT;
+  } else if (datatype == 1) {
+    data_i = new int[sx * sy * sz * 4];
+    datasize = sx * sy * sz * 4 * sizeof(int);
+    image_format.image_channel_data_type = CL_SIGNED_INT32;
+  }
   image_format.image_channel_order = CL_RGBA;
 
 
@@ -48,11 +53,23 @@ int clbuffer::getindex(int x, int y, int z) {
 }
 
 float clbuffer::get(int x, int y, int z, int c) {
+  if (datatype!=0) abort();
   return data[getindex(x, y, z) + c];
 }
 
 void clbuffer::set(int x, int y, int z, int c, float v) {
+  if (datatype!=0) abort();
   data[getindex(x, y, z) + c] = v;
+}
+
+float clbuffer::get_i(int x, int y, int z, int c) {
+  if (datatype!=1) abort();
+  return data_i[getindex(x, y, z) + c];
+}
+
+void clbuffer::set_i(int x, int y, int z, int c, int v) {
+  if (datatype!=1) abort();
+  data_i[getindex(x, y, z) + c] = v;
 }
 
 void clbuffer::ram2device() {

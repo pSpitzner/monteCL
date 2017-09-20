@@ -20,6 +20,8 @@ class clbuffer
     clcontext *context;
     cl_mem buffer;
     float *data;
+    int *data_i;
+    int datatype; // 0=float, 1=int
     size_t datasize;
     cl_int ret;
     cllogger *logger;
@@ -28,10 +30,12 @@ class clbuffer
     int sx, sy, sz;
 
 
-    clbuffer(clcontext *context_, std::string name_, int sx_, int sy_, int sz_);
+    clbuffer(clcontext *context_, std::string name_, int sx_, int sy_, int sz_, int datatype = 0);
     ~clbuffer();
     void set(int x, int y, int z, int c, float v);
     float get(int x, int y, int z, int c);
+    void set_i(int x, int y, int z, int c, int v);
+    float get_i(int x, int y, int z, int c);
     void debug();
     void ram2device();
     void device2ram();
