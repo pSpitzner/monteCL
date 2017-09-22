@@ -60,7 +60,8 @@ int main(int argc, char * argv[]) {
   }
 
   sys->init_from_kernel();
-  sys->write_files(0);
+
+  sys->step();
 
   delete sys;
   delete context;

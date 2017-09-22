@@ -86,8 +86,12 @@ clcontext::clcontext(cllogger *loggern, int device_nr, bool profiling_enabled)
 }
 
 clcontext::~clcontext() {
-  for (int i = 0; i < v_kernelList.size(); i++) delete v_kernelList[i];
-  for (int i = 0; i < v_bufferList.size(); i++) delete v_bufferList[i];
+  for (int i = 0; i < v_kernelList.size(); i++) {
+    delete v_kernelList[i];
+  }
+  for (int i = 0; i < v_bufferList.size(); i++) {
+    delete v_bufferList[i];
+  }
   clReleaseCommandQueue(command_queue);
   clReleaseContext(context);
 }

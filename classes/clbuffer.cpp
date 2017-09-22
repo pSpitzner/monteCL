@@ -1,26 +1,14 @@
 #include "clbuffer.h"
 
-clbuffer::clbuffer(clcontext *context_, std::string name_, int sx_, int sy_, int sz_, int datatype) {
+clbuffer::clbuffer(clcontext *context_, std::string name_, int sx_, int sy_, int sz_, int datatype_) {
   // texture data
   s_name = name_;
   context = context_;
   logger = context->logger;
+  datatype = datatype_;
   sx = sx_;
   sy = sy_;
   sz = sz_;
-
-  cl_image_format image_format;
-
-  if (datatype == 0) {
-    data = new float[sx * sy * sz * 4];
-    datasize = sx * sy * sz * 4 * sizeof(float);
-    image_format.image_channel_data_type = CL_FLOAT;
-  } else if (datatype == 1) {
-    data_i = new int[sx * sy * sz * 4];
-    datasize = sx * sy * sz * 4 * sizeof(int);
-    image_format.image_channel_data_type = CL_SIGNED_INT32;
-  }
-  image_format.image_channel_order = CL_RGBA;
 
 
   cl_image_desc image_desc;
@@ -35,8 +23,22 @@ clbuffer::clbuffer(clcontext *context_, std::string name_, int sx_, int sy_, int
   image_desc.num_samples = 0;
   image_desc.buffer = NULL;
 
-  buffer = clCreateImage(context->context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, &image_format, &image_desc, data, &ret);
-  // buffer = clCreateImage2D(context->context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, &image_format, sx, sy,0, data, &ret);
+  cl_image_format image_format;
+  image_format.image_channel_order = CL_RGBA;
+  if (datatype == 0) {
+    data = new float[sx * sy * sz * 4];
+    datasize = sx * sy * sz * 4 * sizeof(float);
+    image_format.image_channel_data_type = CL_FLOAT;
+    buffer = clCreateImage(context->context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, &image_format, &image_desc, data, &ret);
+  } else if (datatype == 1) {
+    data_i = new int[sx * sy * sz * 4];
+    datasize = sx * sy * sz * 4 * sizeof(int);
+    image_format.image_channel_data_type = CL_SIGNED_INT32;
+    buffer = clCreateImage(context->context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, &image_format, &image_desc, data_i, &ret);
+  }
+
+
+
   logger->log(1, ret, "%s\tBuffer Object construction\n", s_name.c_str());
 
   context->v_bufferList.push_back(this);
@@ -44,7 +46,11 @@ clbuffer::clbuffer(clcontext *context_, std::string name_, int sx_, int sy_, int
 
 clbuffer::~clbuffer() {
   clReleaseMemObject(buffer);
-  delete data;
+  if (datatype == 0) {
+    delete data;
+  } else if (datatype == 1) {
+    delete data_i;
+  }
 }
 
 
@@ -82,7 +88,11 @@ void clbuffer::ram2device() {
     // logger->log(1, ret, "%s\tDevice to Ram\n", s_name.c_str());
     cl_ulong ev_start_time, ev_end_time;
     cl_event profiling_event;
-    ret = clEnqueueWriteImage(context->command_queue, buffer, CL_TRUE, origin, region, 0, 0, data, 0, NULL, &profiling_event);
+    if (datatype == 0) {
+      ret = clEnqueueWriteImage(context->command_queue, buffer, CL_TRUE, origin, region, 0, 0, data, 0, NULL, &profiling_event);
+    } else if (datatype == 1) {
+      ret = clEnqueueWriteImage(context->command_queue, buffer, CL_TRUE, origin, region, 0, 0, data_i, 0, NULL, &profiling_event);
+    }
     ev_start_time = (cl_ulong)0;
     ev_end_time = (cl_ulong)0;
     size_t return_bytes;
@@ -91,7 +101,11 @@ void clbuffer::ram2device() {
     logger->plog((long long)(ev_end_time - ev_start_time), s_name, "cl     ram_to_device");
   } else {
     cl_event dummy_event;
-    ret = clEnqueueWriteImage(context->command_queue, buffer, CL_TRUE, origin, region, 0, 0, data, 0, NULL, &dummy_event);
+        if (datatype == 0) {
+      ret = clEnqueueWriteImage(context->command_queue, buffer, CL_TRUE, origin, region, 0, 0, data, 0, NULL, &dummy_event);
+    } else if (datatype == 1) {
+      ret = clEnqueueWriteImage(context->command_queue, buffer, CL_TRUE, origin, region, 0, 0, data_i, 0, NULL, &dummy_event);
+    }
     ret = clWaitForEvents(1, &dummy_event);
     clReleaseEvent(dummy_event);
     logger->log(1, ret, "%s\tRam to Device\n", s_name.c_str());
@@ -109,7 +123,11 @@ void clbuffer::device2ram() {
     // logger->log(1, ret, "%s\tDevice to Ram\n", s_name.c_str());
     cl_ulong ev_start_time, ev_end_time;
     cl_event profiling_event;
+    if (datatype == 0) {
     ret = clEnqueueReadImage(context->command_queue, buffer, CL_TRUE, origin, region, 0, 0, data, 0, NULL, &profiling_event);
+    } else if (datatype == 1) {
+    ret = clEnqueueReadImage(context->command_queue, buffer, CL_TRUE, origin, region, 0, 0, data_i, 0, NULL, &profiling_event);
+    }
     ev_start_time = (cl_ulong)0;
     ev_end_time = (cl_ulong)0;
     size_t return_bytes;
@@ -118,7 +136,11 @@ void clbuffer::device2ram() {
     logger->plog((long long)(ev_end_time - ev_start_time), s_name, "cl     device_to_ram");
   } else {
     cl_event dummy_event;
+        if (datatype == 0) {
     ret = clEnqueueReadImage(context->command_queue, buffer, CL_TRUE, origin, region, 0, 0, data, 0, NULL, &dummy_event);
+    } else if (datatype == 1) {
+    ret = clEnqueueReadImage(context->command_queue, buffer, CL_TRUE, origin, region, 0, 0, data_i, 0, NULL, &dummy_event);
+    }
     // ret = clWaitForEvents(1, &dummy_event);
     clReleaseEvent(dummy_event);
   }

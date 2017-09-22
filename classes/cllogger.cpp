@@ -27,7 +27,7 @@ cllogger::cllogger(int logleveln, bool profilingn, std::string path, std::string
     v_time.reserve(mysize);
   }
 
-  LogFile = fopen(filename.c_str(), "a");
+  LogFile = fopen(filename.c_str(), "w");
   // fseek(LogFile, 0, SEEK_SET); // overwrite
   // ofs.open(path+filename.c_str(), std::ofstream::out);
 

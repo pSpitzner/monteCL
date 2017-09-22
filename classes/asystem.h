@@ -30,9 +30,15 @@ class asystem {
     cl_int ret;
     long frame_index;
 
-    clbuffer *b_template;
+    clbuffer *bi_sys_a;
+    clbuffer *bi_sys_b;
+    clbuffer *bf_mag;
 
     clkernel *k_init;
+    clkernel *k_copy;
+    clkernel *k_mag;
+    clkernel *k_mc_step;
+    clkernel *k_mc_prep;
 
     // clexport *exporter[3];
     std::vector<clexport *> v_exporter;

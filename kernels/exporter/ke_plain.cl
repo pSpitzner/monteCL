@@ -13,6 +13,6 @@ __kernel void ke_plain_kernel_main(__private parameters par,
   else if (dim == 2) w = read_f4(pos.x    , pos.y,     pos.z+ref, b_source);
 
 
-  float4 rgba = w;
+  float4 rgba = 255.0f*w;
   write_f4(pos.x, pos.y, pos.z, rgba, b_target);
 }

@@ -30,7 +30,7 @@ class clbuffer
     int sx, sy, sz;
 
 
-    clbuffer(clcontext *context_, std::string name_, int sx_, int sy_, int sz_, int datatype = 0);
+    clbuffer(clcontext *context_, std::string name_, int sx_, int sy_, int sz_, int datatype_ = 0);
     ~clbuffer();
     void set(int x, int y, int z, int c, float v);
     float get(int x, int y, int z, int c);
