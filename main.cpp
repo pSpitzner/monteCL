@@ -61,7 +61,15 @@ int main(int argc, char * argv[]) {
 
   sys->init_from_kernel();
 
+  logger->start_new_timer();
   sys->step();
+
+  double seconds_taken = double(logger->end_last_timer())/1.0E9;
+  int hours_taken = int(seconds_taken/3600.0);
+  seconds_taken = fmod(seconds_taken,3600.0);
+  int minutes_taken = int(seconds_taken/60.0);
+  seconds_taken = fmod(seconds_taken,60.0);
+  logger->log(0, "\ndone after %02dh %02dm %02ds\n",hours_taken,minutes_taken,int(seconds_taken));
 
   delete sys;
   delete context;

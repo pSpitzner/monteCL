@@ -2,8 +2,8 @@
 
 void asystem::set_par() {
   par.dim = 2;
-  par.s[0] = 10;
-  par.s[1] = 10;
+  par.s[0] = 12;
+  par.s[1] = 12;
   par.s[2] = 1;
   par.sx = par.s[0];
   par.sy = par.s[1];
@@ -12,7 +12,7 @@ void asystem::set_par() {
   par.alpha = 0.5;
   par.p_cons = 0.58;
   par.p_mean = 0.71;
-  par.p_devi = 0.29;
+  par.p_devi = 0.53; // sigma, beware: argument for normal_dist in cpp11 is sigmasquared
 }
 
 asystem::asystem(clcontext *contextn, cllogger *loggern) {
